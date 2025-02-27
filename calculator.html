@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>免费额度测算 - 易助贷</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .calculator-container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        .calculator-form {
+            display: grid;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+        }
+
+        .calculator-submit {
+            background: #007bff;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 6px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .calculator-submit:hover {
+            background: #0056b3;
+        }
+
+        .result-container {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 6px;
+            background: #f8f9fa;
+            display: none;
+        }
+
+        .result-container.show {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .calculator-container {
+                margin: 20px;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <header>
+        <!-- 这里需要添加导航栏代码 -->
+    </header>
+
+    <main>
+        <div class="calculator-container">
+            <h1>免费额度测算</h1>
+            <p>填写以下信息，快速获取您的可贷额度估算</p>
+            
+            <form class="calculator-form" id="calculatorForm">
+                <div class="form-group">
+                    <label for="loanPurpose">贷款用途</label>
+                    <select id="loanPurpose" required>
+                        <option value="">请选择贷款用途</option>
+                        <option value="business">经营周转</option>
+                        <option value="personal">个人消费</option>
+                        <option value="house">房屋装修</option>
+                        <option value="car">购车贷款</option>
+                        <option value="other">其他用途</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="monthlyIncome">月收入（元）</label>
+                    <input type="number" id="monthlyIncome" placeholder="请输入您的月收入" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="creditScore">信用情况</label>
+                    <select id="creditScore" required>
+                        <option value="">请选择信用情况</option>
+                        <option value="excellent">信用极好</option>
+                        <option value="good">信用良好</option>
+                        <option value="fair">信用一般</option>
+                        <option value="poor">信用欠佳</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="loanTerm">期望借款期限</label>
+                    <select id="loanTerm" required>
+                        <option value="">请选择借款期限</option>
+                        <option value="3">3个月</option>
+                        <option value="6">6个月</option>
+                        <option value="12">12个月</option>
+                        <option value="24">24个月</option>
+                        <option value="36">36个月</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="calculator-submit">立即测算</button>
+            </form>
+
+            <div class="result-container" id="resultContainer">
+                <h2>测算结果</h2>
+                <div id="calculationResult"></div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.getElementById('calculatorForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // 获取表单数据
+            const loanPurpose = document.getElementById('loanPurpose').value;
+            const monthlyIncome = parseFloat(document.getElementById('monthlyIncome').value);
+            const creditScore = document.getElementById('creditScore').value;
+            const loanTerm = parseInt(document.getElementById('loanTerm').value);
+
+            // 简单的额度计算逻辑
+            let maxLoanAmount = monthlyIncome * 12;
+            
+            // 根据信用情况调整
+            const creditMultiplier = {
+                'excellent': 1.2,
+                'good': 1.0,
+                'fair': 0.8,
+                'poor': 0.5
+            };
+            
+            maxLoanAmount *= creditMultiplier[creditScore] || 1;
+
+            // 根据期限调整
+            if (loanTerm <= 6) {
+                maxLoanAmount *= 0.8;
+            } else if (loanTerm <= 12) {
+                maxLoanAmount *= 1;
+            } else {
+                maxLoanAmount *= 1.2;
+            }
+
+            // 显示结果
+            const resultContainer = document.getElementById('resultContainer');
+            const calculationResult = document.getElementById('calculationResult');
+            
+            resultContainer.classList.add('show');
+            calculationResult.innerHTML = `
+                <p>根据您提供的信息，我们为您评估的参考额度为：</p>
+                <h3 style="color: #007bff; font-size: 24px; margin: 20px 0;">
+                    ¥ ${Math.round(maxLoanAmount).toLocaleString('zh-CN')}
+                </h3>
+                <p style="color: #666; font-size: 14px;">
+                    * 此结果仅供参考，实际可贷额度需要根据更多因素综合评估
+                </p>
+                <button onclick="window.location.href='products.html'" 
+                        style="background: #28a745; color: white; padding: 10px 20px; 
+                               border: none; border-radius: 4px; margin-top: 20px; 
+                               cursor: pointer;">
+                    查看贷款产品
+                </button>
+            `;
+        });
+    </script>
+</body>
+</html> 
